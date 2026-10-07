@@ -7,7 +7,7 @@
      hinge-product.html?cid=RX001
    ============================================================ */
 (function () {
-  const WEB_APP_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec"; // TODO: replace
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwsbZKdjeqlsuQyN_xuXcukUOp2BeslLdIm8Uw54Mpti6OIBH54C-a3CQcrOkcsxiCzsQ/exec"; // TODO: replace
 
   const params = new URLSearchParams(window.location.search);
   const cid = params.get("cid") || "unknown";
