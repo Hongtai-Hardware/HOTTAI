@@ -1,91 +1,119 @@
-# 型号追踪页 —— 使用说明
+# 新增型号上线流程（HOTTAI 网站）
 
-这套系统让你不用给每个型号单独建网页。加一个新型号，只改 `assets/data/products.json` 这一个文件 + 传对应的图片文件夹。
+最后更新：2026-10-08
+本地网站文件夹：`/Users/linkaixin/Documents/GitHub/melody`（对应线上仓库 `Hongtai-Hardware/HOTTAI`）
+网站地址：https://hongtai-hardware.github.io/HOTTAI/
 
-## 一、图片：直接传进仓库，不用走 Drive 共享
+> 这个文件在公开仓库里，所以这里不写任何密钥、密码和私人链接。
 
-1. 在仓库的 `assets/images/` 文件夹下，为每个型号新建一个子文件夹，名字用型号编号，比如 `assets/images/H001/`
-2. 把这个型号的 5-10 张实拍图，原封不动拖进这个文件夹（跟你手机相册的分类习惯完全对应，一个相册=一个文件夹）
-3. 文件名随便取，但要记住，等下要填进数据表里，建议用简单的 `01.jpg` `02.jpg` 这种顺序命名，方便管理
+## 一句话流程
 
-**GitHub 网页拖拽上传子文件夹经常不稳定**，如果拖整个文件夹失败，两个办法：
-- 用 GitHub Desktop 客户端（图形界面，支持整个文件夹拖拽，比网页版稳）
-- 或者一张张上传（进 `assets/images/` → Add file → 手动建 `H001/01.jpg` 这样的路径文件名）
+飞书加产品 → 原图加水印 → 水印图放进网站文件夹 → 同步 → 生成预览页 → 提交并推送。
 
-## 二、视频：用 YouTube 或 Bilibili，不要传进仓库
+## 第一次使用前确认（只做一次）
 
-视频文件太大，传进 GitHub 仓库会拖垮整个网站加载速度，改用视频平台：
+- 网站文件夹里有 `feishu_secret.txt`（只写一行飞书应用密钥）。它已经在 `.gitignore` 里，不会被上传。
+- 电脑上能运行 `python3` 和 `node`。
+- GitHub 仓库 Settings → Pages 里：Source 选 "Deploy from a branch"，Branch 选 `main`，目录选 `/ (root)`。如果线上打开显示 "Site not found"，就是这里被关掉了，重新保存一次就行。
 
-1. 把型号视频上传到 YouTube（设为**不公开/Unlisted**）或 Bilibili（设为**仅自己可见**里的"不公开"选项）
-2. YouTube 视频ID：网址 `youtube.com/watch?v=` 后面那串
-   Bilibili 视频ID：BV号，网址里 `bilibili.com/video/BV.../` 中间那段
-3. 填进 `products.json` 的 `video` 字段：
-   ```json
-   "video": { "platform": "youtube", "id": "dQw4w9WgXcQ" }
-   ```
+## 步骤
 
-## 三、怎么加一个新型号
+### 1. 原图放进 Google Drive
+把这个型号的原图放进 Drive 里对应的文件夹（比如 `HINGE`）。原图一直留在 Drive，不要删。
 
-1. 把这个型号的图片文件夹传进 `assets/images/型号编号/`
-2. 打开 `assets/data/products.json`，照着已有的 `H001` 那段格式复制一份，改成新的型号编号（比如 `H003`）：
+### 2. 批量加水印
+打开 Apps Script 项目 **"HOTTAI 批量水印工具"**（在 script.google.com 的项目列表里，打开它的网页应用）。
 
-```json
-"H003": {
-  "name": "型号中文名/卖点名",
-  "tagline": "一句话卖点",
-  "category": "hinge",
-  "categoryLabel": "Hinges",
-  "images": ["01.jpg", "02.jpg", "03.jpg"],
-  "video": { "platform": "youtube", "id": "视频ID" },
-  "specs": { "杯径": "35mm", "开合角度": "165°" }
-}
-```
+1. 输入 Drive 里的文件夹名（比如 `HINGE`），点"扫描文件夹"。它会连子文件夹一起扫描，自动跳过名字以 `_wm` 结尾的文件夹和文件。
+2. 搜索并加载 LOGO（Drive 里的 `hottai_logo_big_phone.png`）。
+3. 水印参数用你固定的那一组（Drive 里有一张"水印参数"截图）。
+4. 点"开始加水印"。每张图保存成 `原名_wm.jpg`，放进 Drive 根目录的 `HINGE_wm`（保持子文件夹结构），原图不会被改动。重复运行会覆盖旧的水印图。
 
-**注意**：`images` 数组里的文件名，必须跟 `assets/images/H003/` 文件夹里的实际文件名完全一致（大小写、后缀名都要对上），对不上图片就显示不出来。
+### 3. 水印图放进网站文件夹
+把 `HINGE_wm` 里这个型号的水印图下载，放进网站文件夹的 `assets/网站代码/`，例如 `assets/H27/`。
 
-`category` 目前支持：`hinge`（铰链）/ `slide`（滑轨）/ `stopper`（门吸），以后加新分类自己定新值，同时在 `category.html` 顶部导航栏加一行链接即可。
+- 建议命名 `01.jpg`、`02.jpg`、`03.jpg`…
+- **排在最前面的图（`01.jpg`）会成为封面，也是聊天里链接预览的缩略图**，所以最好的那一张命名成 `01.jpg`。
+- 支持的格式：jpg、jpeg、png、webp。
 
-`specs` 字段名和内容随便定，会自动显示成规格表。
+### 4. 飞书"产品主表"里新增型号
+- "网站代码"必须是**字母 + 数字**，例如 `H35`。只写一个字母（比如单独一个 `H`）会被当作"还没准备好"，同步时被跳过。
+- 首字母决定分类：
 
-改完保存，Commit 到 GitHub 就生效，**不用建新的 HTML 文件**。
+| 首字母 | 分类 | 首字母 | 分类 |
+|---|---|---|---|
+| H | 铰链 hinge | G | 气撑 gasspring |
+| S | 滑轨 slide | D | 门吸 stopper |
+| U | 隐藏滑轨 undermount | Y | 合页 doorhinge |
+| T | 骑马抽 tandembox | P | 反弹器 pushcatcher |
+| M | 其他五金 misc | | |
 
-## 四、发给客户的链接长这样
+- 克重、克重单位、单价单位、订单数量单位也在这张表里填，同步后会显示在产品页的规格里。
 
-```
-https://michelle2026lin-hub.github.io/melody/product.html?model=H003&cid=RX001
-```
-
-- `model=H003` 决定显示哪个型号
-- `cid=RX001` 是客户身份标识，用来做浏览追踪
-
-**cid 用什么值**：可以直接用客户的 WhatsApp 手机号（去掉符号，只留数字），机器人跟客户对话时本来就知道这个号码，不需要额外查表就能自动拼出链接。如果不想让手机号明文出现在链接里，可以在生成链接前加一层哈希处理（需要时告诉我，我给你补这段代码），效果一样，只是链接里看不出是电话号码。
-
-## 五、分类浏览页（category.html）
-
-客户看完一款，想看同类的其它款，用这个链接：
+### 5. 同步，生成 products.json
+在网站文件夹里运行：
 
 ```
-https://michelle2026lin-hub.github.io/melody/category.html?type=hinge&cid=RX001
+python3 sync_products_from_feishu.py
 ```
 
-会自动列出 `products.json` 里所有 `category` 是 `hinge` 的型号，点进去是各自的 product.html，cid 会自动带过去，同一个客户在你网站里逛几款都算同一次追踪。
+注意：
+- 必须在第 3、4 步之后运行，否则新型号的图片列表是空的。
+- 每次运行都是**清空重建**，只保留你手填过的视频字段（video）。不要手工改 `products.json`。
+- 运行完检查有没有"没有图片"的型号：
 
-## 六、⚠️ 关于 WhatsApp/微信链接预览图的重要限制
+```
+python3 -c "import json;d=json.load(open('assets/data/products.json'));print([k for k,v in d.items() if not k.startswith('_') and not v.get('images')])"
+```
 
-因为 `product.html` 是打开后靠 JavaScript 读数据表才把型号名称/图片显示出来的，**WhatsApp、微信这些平台抓取链接预览图的程序不会执行网页里的JS**，只会读 HTML 里写死的预览标签。这意味着：不管你发哪个型号的链接，客户在聊天里看到的预览图/标题目前都是同一张默认图，**做不到"每个型号各自的预览图"**。
+输出的型号要么补图再同步一次，要么暂时不要给客户发它的链接。
 
-如果你在意这个体验（客户没点开链接之前，就能在聊天列表里看到型号图片），需要额外加一个"预览生成"小工具——你改完数据表后跑一下，会自动帮每个型号生成一份小文件专门给平台抓取用，真人点击会自动跳到正式页面，你完全不用改变现在"只改数据表"的习惯。需要的话说一声，我加上。
+### 5b. 生成链接预览页
+仍然在网站文件夹里运行：
 
-## 七、关于工厂素材（配件/冲压/组装/包装/装柜/客户参观）
+```
+node generate-og-previews.js
+```
 
-这些不是"型号"，适合做一个独立的"工厂实力页"，按类目切换而不是按型号切换。做法跟这套完全一样（模板页+配置表+YouTube/Bilibili视频），说一声我就开始搭。
+- 它会在 `p/` 下给**每个有图片的型号**生成一个预览页（WhatsApp 靠它显示缩略图）。没有图片的型号不生成。
+- 如果提示"有过期预览页"，确认不需要后运行 `node generate-og-previews.js --clean` 删除。
+- **每次同步之后都要运行**，否则新型号发出去的单款链接会打不开。
 
-## 八、关于接入客服机器人（wa_reply_bot）
+### 6. 提交并推送
+用 GitHub Desktop：Commit to main → Push origin。等一两分钟 GitHub Pages 更新。
 
-等 wa_reply_bot 真正能识别客户问的型号时，它要做的事：
-1. 拿到客户 WhatsApp 手机号 → 清洗成纯数字当 cid
-2. 查 `products.json` 里有没有对应型号
-3. 拼出 `product.html?model=XXX&cid=手机号` 这样的链接
-4. 发给客户
+上线检查（建议用浏览器的无痕窗口，避免记住上一个客户）：
+1. 打开 `https://hongtai-hardware.github.io/HOTTAI/p/H35.html?cid=test123`，应该自动跳到产品页，地址栏里带着 `cid=test123`。
+2. 过一会儿，Google 追踪表里应该出现编号 `test123` 的记录。
 
-不需要机器人直接碰 Google Drive 或视频平台，这部分全部由模板页处理好了。
+## 给客户发的链接
+
+| 用途 | 链接格式 |
+|---|---|
+| **单款型号（最常用）** | `https://hongtai-hardware.github.io/HOTTAI/p/H27.html?cid=客户编号` |
+| 某一类产品 | `https://hongtai-hardware.github.io/HOTTAI/category.html?type=hinge&cid=客户编号` |
+| 官网首页 | `https://hongtai-hardware.github.io/HOTTAI/?cid=客户编号` |
+
+- 单款链接在 WhatsApp 里，客户点开之前就能看到这一款的缩略图；微信聊天里通常只显示成一行链接。
+- **cid 的算法**：客户电话只留数字 → MD5 → 取前 8 位。和 `wa_reply_bot.js` 里的算法完全一致，所以同一个客户在 WhatsApp 和微信里的编号相同。**不要改这个算法**，否则以前发出去的链接就认不出人了。
+- 微信机器人通过工具 `get_tracking_link` 自动生成这些链接，客户编号由工具根据聊天名查飞书线索库得到。
+- cid 怎么一路带下去：预览页 → 产品页、分类页 → 产品页，都会自动带上；其余页面（顶部导航等）由 `tracker.js` 在客户的浏览器里记住编号。
+
+## 常见问题
+
+- **双击 html 文件，页面显示"加载失败"**：正常现象，浏览器不允许直接打开的文件去读 `products.json`。要在网站文件夹里运行 `python3 -m http.server 8000`，再用浏览器打开 `http://localhost:8000/product.html?model=H27`。
+- **线上显示 "Site not found"**：见上面"第一次使用前确认"里的 Pages 设置。
+- **整个网站突然全坏**：多半是 `products.json` 格式错了（比如多了一个逗号）。同步脚本生成的不会有这个问题，手工改过才会。
+- **WhatsApp 里没有出现缩略图**：先确认 `p/` 里有这一款的预览页、已经推送到线上；再看封面图是不是太大（WhatsApp 对预览图的大小有限制，几百 KB 以内比较稳妥）。
+- **追踪表里出现"未知客户"**：链接里没有 cid，或者客户是在没带编号的页面直接打开的。
+
+## 网站文件夹里重要的文件
+
+- `index.html`、`category.html`、`product.html`、`factory.html`、`catalog-pdf.html`、`packaging.html`：各个页面
+- `assets/data/products.json`：产品数据，由同步脚本生成
+- `assets/<网站代码>/`：每个型号的图片
+- `p/`：链接预览页，由 `generate-og-previews.js` 生成
+- `tracker.js`：客户浏览追踪（打开、停留、滚动）。里面的追踪地址在线上是公开可见的，这是浏览器追踪的必然结果
+- `sync_products_from_feishu.py`：从飞书同步产品数据
+- `feishu_secret.txt`：飞书密钥，只在本地，不会上传
+- `assets/data/packaging.json`：包装页的数据（更新方式待补充）

@@ -10,7 +10,12 @@
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwsbZKdjeqlsuQyN_xuXcukUOp2BeslLdIm8Uw54Mpti6OIBH54C-a3CQcrOkcsxiCzsQ/exec"; // TODO: replace
 
   const params = new URLSearchParams(window.location.search);
-  const cid = params.get("cid") || "unknown";
+  let cid = params.get("cid");
+  try {
+    if (cid) sessionStorage.setItem("hottai_cid", cid);
+    else cid = sessionStorage.getItem("hottai_cid");
+  } catch (e) {}
+  cid = cid || "unknown";
   const page = document.title || location.pathname;
 
   function ping(action, extra) {
